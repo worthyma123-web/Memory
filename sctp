@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>温馨图片集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        /* 温馨蓝紫主色调（无粉色） */
+        :root {
+            --main-color: #8cb6e5;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #4a5568;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: var(--card-bg);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--main-color);
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        /* 上传区域 */
+        .upload-section {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+            border: 2px dashed var(--border-color);
+            text-align: center;
+        }
+
+        .upload-btn {
+            background-color: var(--main-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: 0.3s;
+        }
+
+        .upload-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+            outline: none;
+        }
+
+        /* 分类标签 */
+        .tabs {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        .tab {
+            padding: 8px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tab.active {
+            background: var(--main-color);
+            color: white;
+            border-color: var(--main-color);
+        }
+
+        /* 图片网格 */
+        .gallery {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .photo-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* 图片预览弹窗 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header>
+        <h1>💖 温馨图片集</h1>
+        <p class="subtitle">记录生活里所有温柔美好的瞬间</p>
+    </header>
+
+    <!-- 图片上传区域 -->
+    <div class="upload-section">
+        <input type="file" id="imageInput" accept="image/*" hidden>
+        <select id="categorySelect">
+            <option value="daily">日常碎片</option>
+            <option value="scenery">治愈风景</option>
+            <option value="cute">可爱瞬间</option>
+        </select>
+        <button class="upload-btn" onclick="document.getElementById('imageInput').click()">选择图片</button>
+        <button class="upload-btn" onclick="saveImage()">添加到相册</button>
+        <p>📸 上传后图片会永久保存，不会丢失哦</p>
+    </div>
+
+    <!-- 分类标签 -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('all')">全部图片</div>
+        <div class="tab" onclick="switchTab('daily')">日常碎片</option>
+        <div class="tab" onclick="switchTab('scenery')">治愈风景</div>
+        <div class="tab" onclick="switchTab('cute')">可爱瞬间</div>
+    </div>
+
+    <!-- 图片展示区 -->
+    <div class="gallery" id="gallery"></div>
+
+    <!-- 图片预览弹窗 -->
+    <div class="modal" id="modal" onclick="closeModal()">
+        <span class="close">&times;</span>
+        <img id="modalImg">
+    </div>
+
+    <script>
+        // 全局变量
+        let currentImage = "";
+        let images = JSON.parse(localStorage.getItem('photoGallery')) || [];
+
+        // 保存图片到本地存储（永久保存）
+        function saveImage() {
+            const input = document.getElementById('imageInput');
+            const category = document.getElementById('categorySelect').value;
+            
+            if (!input.files[0]) {
+                alert("请先选择一张图片哦~");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageData = {
+                    id: Date.now(),
+                    url: e.target.result,
+                    category: category,
+                    time: new Date().toLocaleString()
+                };
+                images.push(imageData);
+                localStorage.setItem('photoGallery', JSON.stringify(images));
+                renderImages();
+                input.value = "";
+                alert("✅ 图片添加成功！永久保存啦");
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        // 渲染图片
+        function renderImages(category = 'all') {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = "";
+
+            const filteredImages = category === 'all' 
+                ? images 
+                : images.filter(img => img.category === category);
+
+            if (filteredImages.length === 0) {
+                gallery.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 50px; opacity: 0.7;">暂无图片，快去上传吧~</p>`;
+                return;
+            }
+
+            filteredImages.forEach(img => {
+                const card = document.createElement('div');
+                card.className = "photo-card";
+                card.innerHTML = `<img src="${img.url}" alt="照片" onclick="openModal('${img.url}')">`;
+                gallery.appendChild(card);
+            });
+        }
+
+        // 切换分类
+        function switchTab(category) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            renderImages(category);
+        }
+
+        // 预览图片
+        function openModal(url) {
+            const modal = document.getElementById('modal');
+            const modalImg = document.getElementById('modalImg');
+            modal.style.display = "flex";
+            modalImg.src = url;
+        }
+
+        // 关闭预览
+        function closeModal() {
+            document.getElementById('modal').style.display = "none";
+        }
+
+        // 初始化页面
+        window.onload = function() {
+            renderImages();
+        };
+    </script>
+</body>
+</html>
